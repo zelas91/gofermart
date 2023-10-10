@@ -1,3 +1,4 @@
+version: "3"
 services:
   postgres:
     image: postgres:14-alpine
@@ -6,13 +7,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=gofermart
-      - POSTGRES_USER=userm
-      - POSTGRES_PASSWORD=12345678
+      POSTGRES_DB: gofermart
+      POSTGRES_USER: userm
+      POSTGRES_PASSWORD: 12345678
 #    volumes:
 #      - ./data:/var/lib/postgresql/data
 
-  gofermart:
+  api:
     build: ./
     command: >
       sh -c "./wait && 
@@ -24,4 +25,4 @@ services:
     depends_on:
       - postgres
     environment:
-      - WAIT_HOSTS=postgres:5432
+      WAIT_HOSTS: postgres:5432
