@@ -21,7 +21,7 @@ func ValidationAuthorization(authService service.Authorization) func(next http.H
 				return
 			}
 			ctx := r.Context()
-			ctx = context.WithValue(ctx, "userId", user.Id)
+			ctx = context.WithValue(ctx, "userId", user.ID)
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
 		})

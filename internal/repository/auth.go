@@ -10,7 +10,7 @@ import (
 
 var (
 	pgErr        *pq.Error
-	DuplicateErr = errors.New("login is already taken")
+	ErrDuplicate = errors.New("login is already taken")
 )
 
 type AuthPostgres struct {
@@ -26,7 +26,7 @@ func (a *AuthPostgres) CreateUser(ctx context.Context, login, password string) e
 		"INSERT INTO USERS (login, password) values($1, $2)", login, password); err != nil {
 		if errors.As(err, &pgErr) {
 			if pgError, ok := err.(*pq.Error); ok && pgError.Code == "23505" {
-				return DuplicateErr
+				return ErrDuplicate
 			}
 
 		}

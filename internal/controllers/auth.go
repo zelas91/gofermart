@@ -26,7 +26,7 @@ func (h *Handler) signUp() http.HandlerFunc {
 		}
 
 		if err := h.services.CreateUser(r.Context(), user); err != nil {
-			if errors.Is(err, repository.DuplicateErr) {
+			if errors.Is(err, repository.ErrDuplicate) {
 				payload.NewErrorResponse(w, err.Error(), http.StatusConflict)
 				return
 			}
