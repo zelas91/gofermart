@@ -1,6 +1,7 @@
 package entities
 
 type User struct {
-	Login    string `json:"login" validate:"required"`
-	Password string `json:"password" validate:"required"`
+	Id       int64  `json:"-" db:"id"`
+	Login    string `json:"login" validate:"required" db:"login"`
+	Password string `json:"password" validate:"required" db:"password"`
 }
