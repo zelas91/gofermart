@@ -2,4 +2,7 @@ package types
 
 type ContextKey string
 
-var UserIDKey = ContextKey("userID")
+const (
+	UserIDKey = ContextKey("userID")
+	Logger    = ContextKey("logger")
+)
