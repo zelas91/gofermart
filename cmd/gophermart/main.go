@@ -10,7 +10,7 @@ import (
 
 func main() {
 	cfg := NewConfig()
-	db, err := repository.NewPostgresDB(*cfg.DbURL)
+	db, err := repository.NewPostgresDB(*cfg.DBURL)
 	if err != nil {
 		log.Fatalf("db init err : %v", err)
 
