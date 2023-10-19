@@ -15,9 +15,9 @@ services:
 
   api:
     build: ./
-    command: >
-      sh -c "./wait && 
-      migrate -path ./schema -database 'postgres://userm:12345678@postgres:5432/gofermart?sslmode=disable' up &&
+    command: |
+      sh -c "./wait 
+      migrate -path ./schema -database 'postgres://userm:12345678@postgres:5432/gofermart?sslmode=disable' up
       ./cmd/accrual/accrual_linux_amd64"
     container_name: gofermart
     ports:
