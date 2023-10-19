@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/zelas91/gofermart/internal/payload"
 	"github.com/zelas91/gofermart/internal/service"
+	"github.com/zelas91/gofermart/internal/types"
 	"net/http"
 )
 
@@ -21,7 +22,7 @@ func ValidationAuthorization(authService service.Authorization) func(next http.H
 				return
 			}
 			ctx := r.Context()
-			ctx = context.WithValue(ctx, "userId", user.ID)
+			ctx = context.WithValue(ctx, types.UserIDKey, user.ID)
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
 		})

@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/zelas91/gofermart/internal/middleware"
 	"github.com/zelas91/gofermart/internal/service"
+	"github.com/zelas91/gofermart/internal/types"
 	"net/http"
 )
 
@@ -33,6 +34,6 @@ func (h *Handler) InitRoutes() http.Handler {
 func pass() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		fmt.Println("PASS")
-		fmt.Println(request.Context().Value("userId"))
+		fmt.Println(request.Context().Value(types.UserIDKey))
 	}
 }

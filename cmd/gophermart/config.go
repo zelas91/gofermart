@@ -20,7 +20,7 @@ func init() {
 
 type Config struct {
 	Addr    *string `env:"RUN_ADDRESS"`
-	DbURL   *string `env:"DATABASE_URI"`
+	DBURL   *string `env:"DATABASE_URI"`
 	Accrual *string `env:"ACCRUAL_SYSTEM_ADDRESS"`
 }
 
@@ -34,8 +34,8 @@ func NewConfig() *Config {
 	if cfg.Addr == nil {
 		cfg.Addr = addr
 	}
-	if cfg.DbURL == nil {
-		cfg.DbURL = dbURL
+	if cfg.DBURL == nil {
+		cfg.DBURL = dbURL
 	}
 	if cfg.Accrual == nil {
 		cfg.Accrual = accrual
