@@ -14,12 +14,14 @@ services:
 #      - ./data:/var/lib/postgresql/data
 
   api:
+    container_name: gofermart
     build: ./
+    volumes:
+      - .:/app
     command: |
-      sh -c "./wait 
+      sh -c "/wait
       migrate -path ./schema -database 'postgres://userm:12345678@postgres:5432/gofermart?sslmode=disable' up
       ./cmd/accrual/accrual_linux_amd64"
-    container_name: gofermart
     ports:
       - "8080:8080"
     depends_on:

@@ -27,7 +27,7 @@ type Claims struct {
 func generateJwt(login string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 10)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 1)),
 		},
 		Login: login,
 	})
@@ -39,7 +39,7 @@ func generateJwt(login string) (string, error) {
 }
 
 func newAuthService(repo repository.Authorization) *AuthService {
-	return &AuthService{repo: repo, cache: cache.New(time.Minute*1, time.Minute*1)}
+	return &AuthService{repo: repo, cache: cache.New(time.Minute*10, time.Minute*10)}
 }
 
 func (a *AuthService) CreateUser(ctx context.Context, user *entities.User) error {

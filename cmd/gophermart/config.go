@@ -13,7 +13,7 @@ var (
 )
 
 func init() {
-	addr = flag.String("a", "localhost:8080", "endpoint start server")
+	addr = flag.String("a", "localhost:8081", "endpoint start server")
 	dbURL = flag.String("d", "host=localhost port=5432 user=userm dbname=gofermart password=12345678 sslmode=disable", "url DB")
 	accrual = flag.String("r", "", "Database URL")
 }

@@ -10,6 +10,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.9
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	go.uber.org/zap v1.26.0
 	golang.org/x/crypto v0.9.0
 )
 
@@ -19,6 +20,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect

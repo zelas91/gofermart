@@ -4,3 +4,4 @@ create table users
     login varchar unique not null ,
     password varchar not null
 );
+
