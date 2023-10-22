@@ -63,3 +63,9 @@ func (h *Handler) postOrders() http.HandlerFunc {
 
 	}
 }
+
+func (h *Handler) getOrders() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+	}
+}
