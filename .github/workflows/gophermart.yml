@@ -46,6 +46,10 @@ jobs:
 
       - name: Prepare binaries
         run: |
+          (curl -s https://packagecloud.io/install/repositories/golang-migrate/migrate/script.deb.sh | bash)
+          (apt-get update)
+          (apt-get install migrate)
+          (migrate -path ./schema -database 'postgresql://postgres:postgres@postgres/praktikum?sslmode=disable' up)
           (cd cmd/gophermart && go build -buildvcs=false -o gophermart)
           (cd cmd/accrual && chmod +x accrual_linux_amd64)
 
