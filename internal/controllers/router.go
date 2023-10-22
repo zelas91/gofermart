@@ -7,6 +7,7 @@ import (
 	"github.com/zelas91/gofermart/internal/service"
 	"github.com/zelas91/gofermart/internal/types"
 	"go.uber.org/zap"
+	"io"
 	"net/http"
 )
 
@@ -20,15 +21,19 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitRoutes(log *zap.SugaredLogger) http.Handler {
 	router := chi.NewRouter()
-	router.Use(middleware.Logger(log))
+	router.Use(middleware.Logger(log), middleware.WithLogging)
 	router.Route("/api/user", func(r chi.Router) {
 		r.Post("/register", h.signUp())
 		r.Post("/login", h.signIn())
-		r.Route("/orders", func(r chi.Router) {
+		r.Route("/", func(r chi.Router) {
 			r.Use(middleware.ValidationAuthorization(h.services))
-			r.Get("/", pass())
-			r.Post("/", pass())
+			r.Get("/orders", pass())
+			r.Post("/orders", h.postOrders())
+			r.Get("/balance", pass())
+			r.Post("/balance/withdraw", pass())
+			r.Get("/withdrawals", pass())
 		})
+
 	})
 	return router
 }
@@ -37,5 +42,8 @@ func pass() http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		log := logger.GetLogger(request.Context())
 		log.Info(request.Context().Value(types.UserIDKey))
+		body, err := io.ReadAll(request.Body)
+
+		log.Info(request.Method, " ", request.URL.Path, " ", string(body), " ", err)
 	}
 }

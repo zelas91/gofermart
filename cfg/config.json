@@ -1,5 +1,5 @@
 {
-  "level" : "info",
+  "level" : "debug",
   "encoding": "json",
   "outputPaths":["stdout", "log.log"],
   "errorOutputPaths":["stderr"],

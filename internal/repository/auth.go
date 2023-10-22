@@ -13,15 +13,15 @@ var (
 	ErrDuplicate = errors.New("login is already taken")
 )
 
-type AuthPostgres struct {
+type authPostgres struct {
 	db *sqlx.DB
 }
 
-func newAuthPostgres(db *sqlx.DB) *AuthPostgres {
-	return &AuthPostgres{db: db}
+func newAuthPostgres(db *sqlx.DB) *authPostgres {
+	return &authPostgres{db: db}
 }
 
-func (a *AuthPostgres) CreateUser(ctx context.Context, login, password string) error {
+func (a *authPostgres) CreateUser(ctx context.Context, login, password string) error {
 	if _, err := a.db.ExecContext(ctx,
 		"INSERT INTO USERS (login, password) values($1, $2)", login, password); err != nil {
 		if errors.As(err, &pgErr) {
@@ -34,7 +34,7 @@ func (a *AuthPostgres) CreateUser(ctx context.Context, login, password string) e
 	}
 	return nil
 }
-func (a *AuthPostgres) GetUser(ctx context.Context, authUser *entities.User) (entities.User, error) {
+func (a *authPostgres) GetUser(ctx context.Context, authUser *entities.User) (entities.User, error) {
 	user := entities.User{}
 
 	if err := a.db.GetContext(ctx, &user,

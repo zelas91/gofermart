@@ -13,7 +13,6 @@ func ValidationAuthorization(authService service.Authorization) func(next http.H
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			log := logger.GetLogger(r.Context())
-
 			cookie, err := r.Cookie("jwt")
 			if err != nil {
 				log.Errorf("not found jwt (err : %v)", err)

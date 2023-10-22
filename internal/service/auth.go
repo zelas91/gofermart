@@ -14,7 +14,7 @@ import (
 
 var secret = []byte("secret_key")
 
-type AuthService struct {
+type authService struct {
 	repo  repository.Authorization
 	cache *cache.Cache
 }
@@ -38,11 +38,11 @@ func generateJwt(login string) (string, error) {
 	return tokenString, nil
 }
 
-func newAuthService(repo repository.Authorization) *AuthService {
-	return &AuthService{repo: repo, cache: cache.New(time.Minute*10, time.Minute*10)}
+func newAuthService(repo repository.Authorization) *authService {
+	return &authService{repo: repo, cache: cache.New(time.Minute*10, time.Minute*10)}
 }
 
-func (a *AuthService) CreateUser(ctx context.Context, user *entities.User) error {
+func (a *authService) CreateUser(ctx context.Context, user *entities.User) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return errors.New("generate password hash err")
@@ -51,7 +51,7 @@ func (a *AuthService) CreateUser(ctx context.Context, user *entities.User) error
 	return a.repo.CreateUser(ctx, user.Login, string(hashedPassword))
 }
 
-func (a *AuthService) CreateToken(ctx context.Context, authUser *entities.User) (string, error) {
+func (a *authService) CreateToken(ctx context.Context, authUser *entities.User) (string, error) {
 	user, err := a.repo.GetUser(ctx, authUser)
 	if err != nil {
 		return "", err
@@ -67,7 +67,7 @@ func (a *AuthService) CreateToken(ctx context.Context, authUser *entities.User) 
 	return token, err
 }
 
-func (a *AuthService) ParserToken(ctx context.Context, tokenString string) (*entities.User, error) {
+func (a *authService) ParserToken(ctx context.Context, tokenString string) (*entities.User, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
