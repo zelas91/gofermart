@@ -11,6 +11,8 @@ import (
 	"net/http"
 )
 
+var content = "Content-Type"
+
 type Handler struct {
 	services *service.Service
 }

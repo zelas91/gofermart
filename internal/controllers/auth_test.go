@@ -39,6 +39,7 @@ func TestSignUp(t *testing.T) {
 		name                   string
 		want                   int
 		url                    string
+		content                string
 		method                 string
 		mockBehaviorCreateUser mockBehaviorCreate
 		mockBehaviorGetUser    mockBehaviorGet
@@ -47,10 +48,11 @@ func TestSignUp(t *testing.T) {
 		user                   *entities.User
 	}{
 		{
-			name:   "#1 register OK",
-			want:   http.StatusOK,
-			method: http.MethodPost,
-			url:    "/api/user/register",
+			name:    "#1 register OK",
+			want:    http.StatusOK,
+			method:  http.MethodPost,
+			url:     "/api/user/register",
+			content: "application/json",
 			mockBehaviorCreateUser: func(s *mock.MockAuthorization, login, password string) {
 				s.EXPECT().CreateUser(gomock.Any(), login, eqCreateUserParamsMatcher{password: password}).Return(nil)
 			},
@@ -78,15 +80,17 @@ func TestSignUp(t *testing.T) {
 			want:     http.StatusBadRequest,
 			method:   http.MethodPost,
 			url:      "/api/user/register",
+			content:  "application/json",
 			login:    "user",
 			password: "12345678",
 			user:     &entities.User{},
 		},
 		{
-			name:   "#3 register conflict",
-			want:   http.StatusConflict,
-			method: http.MethodPost,
-			url:    "/api/user/register",
+			name:    "#3 register conflict",
+			want:    http.StatusConflict,
+			method:  http.MethodPost,
+			url:     "/api/user/register",
+			content: "application/json",
 			mockBehaviorCreateUser: func(s *mock.MockAuthorization, login, password string) {
 				s.EXPECT().CreateUser(gomock.Any(),
 					gomock.Any(), gomock.Any()).Return(repository.ErrDuplicate)
@@ -99,10 +103,11 @@ func TestSignUp(t *testing.T) {
 			},
 		},
 		{
-			name:   "#4 register Internal Server Error",
-			want:   http.StatusInternalServerError,
-			method: http.MethodPost,
-			url:    "/api/user/register",
+			name:    "#4 register Internal Server Error",
+			want:    http.StatusInternalServerError,
+			method:  http.MethodPost,
+			url:     "/api/user/register",
+			content: "application/json",
 			mockBehaviorCreateUser: func(s *mock.MockAuthorization, login, password string) {
 				s.EXPECT().CreateUser(gomock.Any(),
 					gomock.Any(), gomock.Any()).Return(sql.ErrNoRows)
@@ -116,10 +121,11 @@ func TestSignUp(t *testing.T) {
 		},
 
 		{
-			name:   "#5 register Unauthorized",
-			want:   http.StatusUnauthorized,
-			method: http.MethodPost,
-			url:    "/api/user/register",
+			name:    "#5 register Unauthorized",
+			want:    http.StatusUnauthorized,
+			method:  http.MethodPost,
+			url:     "/api/user/register",
+			content: "application/json",
 			mockBehaviorCreateUser: func(s *mock.MockAuthorization, login, password string) {
 				s.EXPECT().CreateUser(gomock.Any(), login, eqCreateUserParamsMatcher{password: password}).Return(nil)
 			},
@@ -133,6 +139,12 @@ func TestSignUp(t *testing.T) {
 				Login:    "user",
 				Password: "12345678",
 			},
+		},
+		{
+			name:   "#6 register media type unsupported ",
+			want:   http.StatusUnsupportedMediaType,
+			method: http.MethodPost,
+			url:    "/api/user/register",
 		},
 	}
 
@@ -156,11 +168,12 @@ func TestSignUp(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			h := handler.InitRoutes(logger.New())
+			request.Header.Set("Content-Type", test.content)
 			h.ServeHTTP(w, request)
+			res := w.Result()
+			defer res.Body.Close()
 
-			defer w.Result().Body.Close()
-
-			assert.Equal(t, test.want, w.Result().StatusCode)
+			assert.Equal(t, test.want, res.StatusCode)
 		})
 
 	}
@@ -170,15 +183,17 @@ func TestSignIn(t *testing.T) {
 		name                string
 		want                int
 		url                 string
+		content             string
 		method              string
 		mockBehaviorGetUser mockBehaviorGet
 		user                *entities.User
 	}{
 		{
-			name:   "#1 OK authorization",
-			want:   http.StatusOK,
-			url:    "/api/user/login",
-			method: http.MethodPost,
+			name:    "#1 OK authorization",
+			want:    http.StatusOK,
+			url:     "/api/user/login",
+			content: "application/json",
+			method:  http.MethodPost,
 			mockBehaviorGetUser: func(s *mock.MockAuthorization, user *entities.User) {
 				hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 				if err != nil {
@@ -197,19 +212,21 @@ func TestSignIn(t *testing.T) {
 			},
 		},
 		{
-			name:   "#2 bad request validation",
-			want:   http.StatusBadRequest,
-			url:    "/api/user/login",
-			method: http.MethodPost,
+			name:    "#2 bad request validation",
+			want:    http.StatusBadRequest,
+			url:     "/api/user/login",
+			content: "application/json",
+			method:  http.MethodPost,
 			user: &entities.User{
 				Login: "user",
 			},
 		},
 		{
-			name:   "#3 Unauthorized",
-			want:   http.StatusUnauthorized,
-			url:    "/api/user/login",
-			method: http.MethodPost,
+			name:    "#3 Unauthorized",
+			want:    http.StatusUnauthorized,
+			url:     "/api/user/login",
+			content: "application/json",
+			method:  http.MethodPost,
 			mockBehaviorGetUser: func(s *mock.MockAuthorization, user *entities.User) {
 
 				s.EXPECT().GetUser(gomock.Any(), user).Return(entities.User{}, sql.ErrNoRows)
@@ -218,6 +235,12 @@ func TestSignIn(t *testing.T) {
 				Login:    "user",
 				Password: "12345678",
 			},
+		},
+		{
+			name:   "#4 register media type unsupported ",
+			want:   http.StatusUnsupportedMediaType,
+			method: http.MethodPost,
+			url:    "/api/user/login",
 		},
 	}
 	for _, test := range tests {
@@ -236,13 +259,13 @@ func TestSignIn(t *testing.T) {
 
 			request := httptest.NewRequest(test.method, test.url, strings.NewReader(string(body)))
 			w := httptest.NewRecorder()
-
+			request.Header.Set("Content-Type", test.content)
 			h := handler.InitRoutes(logger.New())
 			h.ServeHTTP(w, request)
+			res := w.Result()
+			defer res.Body.Close()
 
-			defer w.Result().Body.Close()
-
-			assert.Equal(t, test.want, w.Result().StatusCode)
+			assert.Equal(t, test.want, res.StatusCode)
 		})
 	}
 }

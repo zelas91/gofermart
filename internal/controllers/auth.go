@@ -14,6 +14,13 @@ import (
 func (h *Handler) signUp() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log := logger.GetLogger(r.Context())
+
+		if r.Header.Get(content) != "application/json" {
+			log.Errorf("invalid content type")
+			payload.NewErrorResponse(w, "invalid content type", http.StatusUnsupportedMediaType)
+			return
+		}
+
 		user := &entities.User{}
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			log.Errorf("sigUp json decode err :%v", err)
@@ -58,6 +65,13 @@ func (h *Handler) signUp() http.HandlerFunc {
 func (h *Handler) signIn() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log := logger.GetLogger(r.Context())
+
+		if r.Header.Get(content) != "application/json" {
+			log.Errorf("invalid content type")
+			payload.NewErrorResponse(w, "invalid content type", http.StatusUnsupportedMediaType)
+			return
+		}
+
 		user := &entities.User{}
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			log.Errorf("signIn json decode err:%v", err)
