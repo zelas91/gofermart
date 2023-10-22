@@ -157,6 +157,9 @@ func TestSignUp(t *testing.T) {
 
 			h := handler.InitRoutes(logger.New())
 			h.ServeHTTP(w, request)
+			if w.Result().Body != nil {
+				defer w.Result().Body.Close()
+			}
 			assert.Equal(t, test.want, w.Result().StatusCode)
 		})
 
@@ -236,6 +239,9 @@ func TestSignIn(t *testing.T) {
 
 			h := handler.InitRoutes(logger.New())
 			h.ServeHTTP(w, request)
+			if w.Result().Body != nil {
+				defer w.Result().Body.Close()
+			}
 			assert.Equal(t, test.want, w.Result().StatusCode)
 		})
 	}
