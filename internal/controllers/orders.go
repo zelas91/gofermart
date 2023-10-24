@@ -72,7 +72,7 @@ func (h *Handler) postOrders() http.HandlerFunc {
 		if err := json.NewDecoder(request.Body).Decode(accrual); err != nil {
 			log.Errorf("accrual err %v", err)
 		}
-		log.Info("!!!!!!!!!!!!!!!!!!! ", accrual)
+		log.Info("!!!!!!!!!!!!!!!!!!! ", number, " ", accrual)
 		w.WriteHeader(http.StatusAccepted)
 
 	}
