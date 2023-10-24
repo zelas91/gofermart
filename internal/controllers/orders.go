@@ -7,6 +7,7 @@ import (
 	"github.com/zelas91/gofermart/internal/types"
 	"io"
 	"net/http"
+	"time"
 )
 
 func (h *Handler) postOrders() http.HandlerFunc {
@@ -58,7 +59,9 @@ func (h *Handler) postOrders() http.HandlerFunc {
 			payload.NewErrorResponse(w, "create order err", http.StatusInternalServerError)
 			return
 		}
-
+		cl := http.Client{Timeout: time.Second * 1}
+		request, err := cl.Get(fmt.Sprintf("localhost:8080/api/orders/%s", number))
+		log.Info("!!!!!!!!!!! ", request, err)
 		w.WriteHeader(http.StatusAccepted)
 
 	}
