@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/zelas91/gofermart/internal/logger"
 	"github.com/zelas91/gofermart/internal/payload"
@@ -9,6 +10,12 @@ import (
 	"net/http"
 	"time"
 )
+
+type Accrual struct {
+	Order   string `json:"order"`
+	Status  string `json:"status"`
+	Accrual int    `json:"accrual"`
+}
 
 func (h *Handler) postOrders() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +68,11 @@ func (h *Handler) postOrders() http.HandlerFunc {
 		}
 		cl := http.Client{Timeout: time.Second * 1}
 		request, err := cl.Get(fmt.Sprintf("%s/api/orders/%s", h.accrual, number))
-		log.Info("!!!!!!!!!!! ", request, err)
+		accrual := &Accrual{}
+		if err := json.NewDecoder(request.Body).Decode(accrual); err != nil {
+			log.Errorf("accrual err %v", err)
+		}
+		log.Info("!!!!!!!!!!!!!!!!!!! ", accrual)
 		w.WriteHeader(http.StatusAccepted)
 
 	}
