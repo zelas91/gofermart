@@ -15,10 +15,11 @@ var content = "Content-Type"
 
 type Handler struct {
 	services *service.Service
+	accrual  string
 }
 
-func NewHandler(services *service.Service) *Handler {
-	return &Handler{services: services}
+func NewHandler(accrual string, services *service.Service) *Handler {
+	return &Handler{services: services, accrual: accrual}
 }
 
 func (h *Handler) InitRoutes(log *zap.SugaredLogger) http.Handler {

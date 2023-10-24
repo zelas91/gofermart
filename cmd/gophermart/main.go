@@ -30,7 +30,7 @@ func main() {
 	}
 
 	log.Info("Accrual add ", *cfg.Accrual)
-	h := controllers.NewHandler(service.NewService(repository.NewRepository(db)))
+	h := controllers.NewHandler(*cfg.Accrual, service.NewService(repository.NewRepository(db)))
 	serv := &server{http: &http.Server{Addr: *cfg.Addr, Handler: h.InitRoutes(log)}}
 	go func() {
 		if err = serv.http.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {

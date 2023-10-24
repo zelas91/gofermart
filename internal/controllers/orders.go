@@ -60,7 +60,7 @@ func (h *Handler) postOrders() http.HandlerFunc {
 			return
 		}
 		cl := http.Client{Timeout: time.Second * 1}
-		request, err := cl.Get(fmt.Sprintf("localhost:8080/api/orders/%s", number))
+		request, err := cl.Get(fmt.Sprintf("%s/api/orders/%s", h.accrual, number))
 		log.Info("!!!!!!!!!!! ", request, err)
 		w.WriteHeader(http.StatusAccepted)
 
