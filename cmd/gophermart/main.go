@@ -28,6 +28,8 @@ func main() {
 		log.Fatalf("db init err : %v", err)
 
 	}
+
+	log.Info("Accrual add ", *cfg.Accrual)
 	h := controllers.NewHandler(service.NewService(repository.NewRepository(db)))
 	serv := &server{http: &http.Server{Addr: *cfg.Addr, Handler: h.InitRoutes(log)}}
 	go func() {
