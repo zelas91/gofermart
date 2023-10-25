@@ -8,3 +8,9 @@ type Order struct {
 	Accrual    float64           `json:"accrual,omitempty"`
 	UploadedAt types.RFC3339Time `json:"uploaded_at" db:"upload_at"`
 }
+
+type Accrual struct {
+	Order   string  `json:"order"`
+	Status  string  `json:"status"`
+	Accrual float64 `json:"accrual"`
+}

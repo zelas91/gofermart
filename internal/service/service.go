@@ -27,4 +27,5 @@ type Orders interface {
 	ValidateNumber(number string) bool
 	FindUserIDByOrder(ctx context.Context, number string) (int64, error)
 	CreateOrder(ctx context.Context, number string) error
+	GetOrders(ctx context.Context) ([]entities.Order, error)
 }

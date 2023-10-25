@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"github.com/zelas91/gofermart/internal/entities"
 	"github.com/zelas91/gofermart/internal/repository"
+	"github.com/zelas91/gofermart/internal/types"
 	"strconv"
 )
 
@@ -21,6 +23,9 @@ func (o *orderService) CreateOrder(ctx context.Context, number string) error {
 	return o.repo.CreateOrder(ctx, number)
 }
 
+func (o *orderService) GetOrders(ctx context.Context) ([]entities.Order, error) {
+	return o.repo.GetOrders(ctx, ctx.Value(types.UserIDKey).(int64))
+}
 func (o *orderService) ValidateNumber(number string) bool {
 	sum := 0
 	parity := len(number) % 2
