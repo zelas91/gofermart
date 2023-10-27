@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	pgErr        *pq.Error
+	pgError      *pq.Error
 	ErrDuplicate = errors.New("login is already taken")
 )
 
@@ -24,12 +24,11 @@ func newAuthPostgres(db *sqlx.DB) *authPostgres {
 func (a *authPostgres) CreateUser(ctx context.Context, login, password string) error {
 	if _, err := a.db.ExecContext(ctx,
 		"INSERT INTO USERS (login, password) values($1, $2)", login, password); err != nil {
-		if errors.As(err, &pgErr) {
-			if pgError, ok := err.(*pq.Error); ok && pgError.Code == "23505" {
-				return ErrDuplicate
-			}
 
+		if errors.As(err, &pgError) && pgError.Code == "23505" {
+			return ErrDuplicate
 		}
+
 		return err
 	}
 	return nil

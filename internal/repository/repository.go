@@ -27,5 +27,7 @@ type Authorization interface {
 type Orders interface {
 	FindUserIDByOrder(ctx context.Context, number string) (int64, error)
 	CreateOrder(ctx context.Context, number string) error
-	GetOrders(ctx context.Context, userID int64) ([]entities.Order, error)
+	FindOrdersByUserID(ctx context.Context, userID int64) ([]entities.Order, error)
+	GetOrders(ctx context.Context) ([]entities.Order, error)
+	GetOrdersWithoutFinalStatuses(ctx context.Context) ([]entities.Order, error)
 }

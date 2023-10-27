@@ -23,8 +23,8 @@ func (o *orderService) CreateOrder(ctx context.Context, number string) error {
 	return o.repo.CreateOrder(ctx, number)
 }
 
-func (o *orderService) GetOrders(ctx context.Context) ([]entities.Order, error) {
-	return o.repo.GetOrders(ctx, ctx.Value(types.UserIDKey).(int64))
+func (o *orderService) FindOrdersByUser(ctx context.Context) ([]entities.Order, error) {
+	return o.repo.FindOrdersByUserID(ctx, ctx.Value(types.UserIDKey).(int64))
 }
 func (o *orderService) ValidateNumber(number string) bool {
 	sum := 0
@@ -40,4 +40,7 @@ func (o *orderService) ValidateNumber(number string) bool {
 		sum += digit
 	}
 	return sum%10 == 0
+}
+func (o *orderService) GetOrders(ctx context.Context) ([]entities.Order, error) {
+	return o.repo.GetOrders(ctx)
 }

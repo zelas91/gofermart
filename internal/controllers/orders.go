@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/zelas91/gofermart/internal/logger"
 	"github.com/zelas91/gofermart/internal/payload"
-	"github.com/zelas91/gofermart/internal/types"
 	"io"
 	"net/http"
 )
@@ -36,30 +35,29 @@ func (h *Handler) postOrders() http.HandlerFunc {
 			return
 		}
 
-		authUserID := r.Context().Value(types.UserIDKey).(int64)
-
-		userID, err := h.services.FindUserIDByOrder(r.Context(), number)
-		if err != nil {
-			logger.GetLogger(r.Context()).Errorf("find user id by order err : %v", err)
-			payload.NewErrorResponse(w, "find user id by order", http.StatusInternalServerError)
-			return
-		}
-		if userID != 0 {
-			if authUserID == userID {
-				w.WriteHeader(http.StatusOK)
-				return
-			}
-			payload.NewErrorResponse(w, "order will be loaded on another user", http.StatusConflict)
-			return
-		}
-
+		//authUserID := r.Context().Value(types.UserIDKey).(int64)
+		//
+		//userID, err := h.services.FindUserIDByOrder(r.Context(), number)
+		//if err != nil {
+		//	logger.GetLogger(r.Context()).Errorf("find user id by order err : %v", err)
+		//	payload.NewErrorResponse(w, "find user id by order", http.StatusInternalServerError)
+		//	return
+		//}
+		//if userID != 0 {
+		//	if authUserID == userID {
+		//		w.WriteHeader(http.StatusOK)
+		//		return
+		//	}
+		//	payload.NewErrorResponse(w, "the order was uploaded to another user", http.StatusConflict)
+		//	return
+		//}
 		if err = h.services.CreateOrder(r.Context(), number); err != nil {
 			logger.GetLogger(r.Context()).Errorf("create order err : %v", err)
 			payload.NewErrorResponse(w, "create order err", http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusAccepted)
 
+		w.WriteHeader(http.StatusAccepted)
 	}
 }
 
@@ -67,7 +65,7 @@ func (h *Handler) getOrders() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
-		orders, err := h.services.GetOrders(r.Context())
+		orders, err := h.services.FindOrdersByUser(r.Context())
 		if len(orders) == 0 {
 			w.WriteHeader(http.StatusNoContent)
 			return
@@ -83,7 +81,13 @@ func (h *Handler) getOrders() http.HandlerFunc {
 			payload.NewErrorResponse(w, "order encode to json err", http.StatusInternalServerError)
 			return
 		}
-		w.Write(body)
+
+		if _, err = w.Write(body); err != nil {
+			logger.GetLogger(r.Context()).Errorf("write body err : %v", err)
+			payload.NewErrorResponse(w, "", http.StatusInternalServerError)
+			return
+		}
+
 		w.WriteHeader(http.StatusOK)
 
 	}
