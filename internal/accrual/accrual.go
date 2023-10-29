@@ -1,1 +1,128 @@
 package accrual
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"github.com/zelas91/gofermart/internal/entities"
+	"github.com/zelas91/gofermart/internal/logger"
+	"github.com/zelas91/gofermart/internal/service"
+	"net/http"
+	"strconv"
+	"time"
+)
+
+const defaultRetryAfter = time.Millisecond * 50
+
+type errHTTPClient struct {
+	msg        string
+	statusCode int
+	retryTime  time.Duration
+}
+
+func (e *errHTTPClient) Error() string {
+	return e.msg
+}
+
+type Client struct {
+	client  *http.Client
+	baseURL string
+	service service.Orders
+}
+
+func New(baseURL string, service service.Orders) *Client {
+	return &Client{
+		&http.Client{
+			Timeout: time.Second * 1,
+		},
+		baseURL,
+		service,
+	}
+}
+
+func (c *Client) FetchOrder(ctx context.Context) {
+	ticker := time.NewTicker(defaultRetryAfter)
+
+	go func() {
+		retryErr := false
+		for {
+			if ctx.Err() != nil {
+				return
+			}
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				if retryErr {
+					retryErr = false
+					ticker.Reset(defaultRetryAfter)
+				}
+
+				orders, err := c.service.GetOrdersWithoutFinalStatuses(ctx)
+				if err != nil {
+					logger.GetLogger(ctx).Info("get orders  ", err)
+					return
+				}
+				logger.GetLogger(ctx).Info(" LEN ! ", len(orders))
+				for _, order := range orders {
+
+					oa, err := c.getOrderAccrual(ctx, order)
+					var errClient *errHTTPClient
+					if errors.As(err, &errClient) {
+						if errClient.statusCode == http.StatusTooManyRequests {
+							retryErr = true
+							ticker.Reset(errClient.retryTime)
+							return
+						}
+						logger.GetLogger(ctx).Errorf("accrual get request err: %v", err)
+						continue
+					}
+					if err = c.service.UpdateOrder(ctx, oa); err != nil {
+						logger.GetLogger(ctx).Errorf("update order err: %v", err)
+					}
+				}
+			}
+		}
+	}()
+
+}
+
+func (c *Client) getOrderAccrual(ctx context.Context, order entities.Order) (entities.OrderAccrual, error) {
+	URL := fmt.Sprintf("%s/api/orders/%s", c.baseURL, order.Number)
+	resp, err := c.client.Get(URL)
+	if err != nil {
+		logger.GetLogger(ctx).Errorf("http request err : %v", err)
+		return entities.OrderAccrual{}, err
+	}
+	if resp.StatusCode != http.StatusOK {
+		if resp.StatusCode == http.StatusTooManyRequests {
+			return entities.OrderAccrual{}, &errHTTPClient{msg: "status code not equals 200",
+				statusCode: resp.StatusCode, retryTime: c.getRetryAfterByResp(ctx, resp)}
+		}
+		return entities.OrderAccrual{}, &errHTTPClient{msg: "status code not equals 200",
+			statusCode: resp.StatusCode, retryTime: defaultRetryAfter}
+	}
+
+	var oa entities.OrderAccrual
+
+	if err = json.NewDecoder(resp.Body).Decode(&oa); err != nil {
+		logger.GetLogger(ctx).Errorf("json decode err : %v", err)
+		return oa, err
+	}
+
+	return oa, err
+
+}
+func (c *Client) getRetryAfterByResp(ctx context.Context, r *http.Response) time.Duration {
+	respRetryAfter := r.Header.Get("Retry-After")
+	if respRetryAfter != "" {
+		retryAfter, err := strconv.Atoi(respRetryAfter)
+		if err == nil {
+			return time.Duration(retryAfter) * time.Second
+		}
+		logger.GetLogger(ctx).Error(err)
+	}
+
+	return defaultRetryAfter
+}

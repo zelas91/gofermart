@@ -20,7 +20,10 @@ func (o *orderService) FindUserIDByOrder(ctx context.Context, number string) (in
 }
 
 func (o *orderService) CreateOrder(ctx context.Context, number string) error {
-	return o.repo.CreateOrder(ctx, number)
+	if err := o.repo.CreateOrder(ctx, number); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (o *orderService) FindOrdersByUser(ctx context.Context) ([]entities.Order, error) {
@@ -43,4 +46,12 @@ func (o *orderService) ValidateNumber(number string) bool {
 }
 func (o *orderService) GetOrders(ctx context.Context) ([]entities.Order, error) {
 	return o.repo.GetOrders(ctx)
+}
+
+func (o *orderService) GetOrdersWithoutFinalStatuses(ctx context.Context) ([]entities.Order, error) {
+	return o.repo.GetOrdersWithoutFinalStatuses(ctx)
+}
+
+func (o *orderService) UpdateOrder(ctx context.Context, order entities.OrderAccrual) error {
+	return o.repo.UpdateOrder(ctx, order)
 }

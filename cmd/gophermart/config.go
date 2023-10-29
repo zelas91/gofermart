@@ -7,21 +7,21 @@ import (
 )
 
 var (
-	addr    *string
-	dbURL   *string
-	accrual *string
+	addr       *string
+	dbURL      *string
+	accrualURL *string
 )
 
 func init() {
 	addr = flag.String("a", "localhost:8081", "endpoint start server")
 	dbURL = flag.String("d", "host=localhost port=5432 user=userm dbname=gofermart password=12345678 sslmode=disable", "url DB")
-	accrual = flag.String("r", "", "Database URL")
+	accrualURL = flag.String("r", "", "Database URL")
 }
 
 type Config struct {
-	Addr    *string `env:"RUN_ADDRESS"`
-	DBURL   *string `env:"DATABASE_URI"`
-	Accrual *string `env:"ACCRUAL_SYSTEM_ADDRESS"`
+	Addr       *string `env:"RUN_ADDRESS"`
+	DBURL      *string `env:"DATABASE_URI"`
+	AccrualURL *string `env:"ACCRUAL_SYSTEM_ADDRESS"`
 }
 
 func NewConfig() *Config {
@@ -37,8 +37,8 @@ func NewConfig() *Config {
 	if cfg.DBURL == nil {
 		cfg.DBURL = dbURL
 	}
-	if cfg.Accrual == nil {
-		cfg.Accrual = accrual
+	if cfg.AccrualURL == nil {
+		cfg.AccrualURL = accrualURL
 	}
 	flag.Parse()
 	return &cfg

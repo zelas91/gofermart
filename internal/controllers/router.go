@@ -31,7 +31,7 @@ func (h *Handler) InitRoutes(log *zap.SugaredLogger) http.Handler {
 			r.Use(middleware.ValidationAuthorization(h.services))
 			r.Get("/orders", h.getOrders())
 			r.Post("/orders", h.postOrders())
-			r.Get("/balance", pass())
+			r.Get("/balance", h.getBalance())
 			r.Post("/balance/withdraw", pass())
 			r.Get("/withdrawals", pass())
 		})

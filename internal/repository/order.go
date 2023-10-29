@@ -41,7 +41,7 @@ func (o *orderPostgres) CreateOrder(ctx context.Context, number string) error {
 
 func (o *orderPostgres) FindOrdersByUserID(ctx context.Context, userID int64) ([]entities.Order, error) {
 	var orders []entities.Order
-	query := "select number, status , upload_at from orders where user_id = $1 order by upload_at"
+	query := "select number, status , upload_at, accrual from orders where user_id = $1 order by upload_at"
 	if err := o.db.SelectContext(ctx, &orders, query, userID); err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (o *orderPostgres) FindOrdersByUserID(ctx context.Context, userID int64) ([
 
 func (o *orderPostgres) GetOrdersWithoutFinalStatuses(ctx context.Context) ([]entities.Order, error) {
 	var orders []entities.Order
-	query := `select number, status , upload_at  FROM
+	query := `select number, status , upload_at, accrual  FROM
                                        orders WHERE status NOT IN ('INVALID', 'PROCESSED') ORDER BY upload_at`
 	if err := o.db.SelectContext(ctx, &orders, query); err != nil {
 		return nil, err
@@ -62,11 +62,16 @@ func (o *orderPostgres) GetOrdersWithoutFinalStatuses(ctx context.Context) ([]en
 
 func (o *orderPostgres) GetOrders(ctx context.Context) ([]entities.Order, error) {
 	var orders []entities.Order
-	query := `select number, status , upload_at  FROM
+	query := `select number, status , upload_at , accrual FROM
                                        orders  ORDER BY upload_at`
 	if err := o.db.SelectContext(ctx, &orders, query); err != nil {
 		return nil, err
 	}
 	return orders, nil
 
+}
+func (o *orderPostgres) UpdateOrder(ctx context.Context, order entities.OrderAccrual) error {
+	query := "update orders set status=$1, accrual=$2 where number=$3"
+	_, err := o.db.ExecContext(ctx, query, order.Status, order.Accrual, order.Order)
+	return err
 }

@@ -9,12 +9,14 @@ import (
 type Repository struct {
 	Authorization
 	Orders
+	Balance
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: newAuthPostgres(db),
 		Orders:        newOrderPostgres(db),
+		Balance:       newBalancePostgres(db),
 	}
 }
 
@@ -30,4 +32,8 @@ type Orders interface {
 	FindOrdersByUserID(ctx context.Context, userID int64) ([]entities.Order, error)
 	GetOrders(ctx context.Context) ([]entities.Order, error)
 	GetOrdersWithoutFinalStatuses(ctx context.Context) ([]entities.Order, error)
+	UpdateOrder(ctx context.Context, order entities.OrderAccrual) error
+}
+type Balance interface {
+	GetBalance(ctx context.Context, userID int64) (entities.Balance, error)
 }
