@@ -40,7 +40,7 @@ func main() {
 		}
 	}()
 	accrualService := accrual.New(*cfg.AccrualURL, s)
-	accrualService.FetchOrder(ctx)
+	accrualService.StartService(ctx)
 
 	log.Infof("start server, address : %s", *cfg.Addr)
 

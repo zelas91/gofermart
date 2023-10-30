@@ -22,6 +22,8 @@ func NewService(repos *repository.Repository) *Service {
 
 type Balance interface {
 	GetBalance(ctx context.Context) (entities.Balance, error)
+	Withdraw(ctx context.Context, withdraw entities.Withdraw) error
+	WithdrawInfo(ctx context.Context) ([]entities.WithdrawInfo, error)
 }
 type Authorization interface {
 	CreateUser(ctx context.Context, user *entities.User) error

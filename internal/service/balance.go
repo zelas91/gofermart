@@ -19,3 +19,12 @@ func (b *balanceService) GetBalance(ctx context.Context) (entities.Balance, erro
 	userID := ctx.Value(types.UserIDKey).(int64)
 	return b.repo.GetBalance(ctx, userID)
 }
+func (b *balanceService) Withdraw(ctx context.Context, withdraw entities.Withdraw) error {
+	userID := ctx.Value(types.UserIDKey).(int64)
+	return b.repo.Withdraw(ctx, userID, withdraw)
+}
+
+func (b *balanceService) WithdrawInfo(ctx context.Context) ([]entities.WithdrawInfo, error) {
+	userID := ctx.Value(types.UserIDKey).(int64)
+	return b.repo.WithdrawInfo(ctx, userID)
+}

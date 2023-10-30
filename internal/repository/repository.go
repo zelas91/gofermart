@@ -13,10 +13,12 @@ type Repository struct {
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
+	tm := newTm(db)
+	orders := newOrderPostgres(tm)
 	return &Repository{
-		Authorization: newAuthPostgres(db),
-		Orders:        newOrderPostgres(db),
-		Balance:       newBalancePostgres(db),
+		Authorization: newAuthPostgres(tm),
+		Orders:        orders,
+		Balance:       newBalancePostgres(tm, orders),
 	}
 }
 
@@ -36,4 +38,10 @@ type Orders interface {
 }
 type Balance interface {
 	GetBalance(ctx context.Context, userID int64) (entities.Balance, error)
+	Withdraw(ctx context.Context, userID int64, withdraw entities.Withdraw) error
+	WithdrawInfo(ctx context.Context, userID int64) ([]entities.WithdrawInfo, error)
+}
+type transactionManager interface {
+	do(ctx context.Context, fn func(ctx context.Context) error) error
+	getConn(ctx context.Context) conn
 }

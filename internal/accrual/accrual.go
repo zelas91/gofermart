@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const defaultRetryAfter = time.Millisecond * 50
+const defaultRetryAfter = time.Second
 
 type errHTTPClient struct {
 	msg        string
@@ -41,7 +41,10 @@ func New(baseURL string, service service.Orders) *Client {
 	}
 }
 
-func (c *Client) FetchOrder(ctx context.Context) {
+func (c *Client) StartService(ctx context.Context) {
+	c.fetchOrder(ctx)
+}
+func (c *Client) fetchOrder(ctx context.Context) {
 	ticker := time.NewTicker(defaultRetryAfter)
 
 	go func() {
@@ -64,7 +67,7 @@ func (c *Client) FetchOrder(ctx context.Context) {
 					logger.GetLogger(ctx).Info("get orders  ", err)
 					return
 				}
-				logger.GetLogger(ctx).Info(" LEN ! ", len(orders))
+
 				for _, order := range orders {
 
 					oa, err := c.getOrderAccrual(ctx, order)
@@ -75,8 +78,10 @@ func (c *Client) FetchOrder(ctx context.Context) {
 							ticker.Reset(errClient.retryTime)
 							return
 						}
+
 						logger.GetLogger(ctx).Errorf("accrual get request err: %v", err)
 						continue
+
 					}
 					if err = c.service.UpdateOrder(ctx, oa); err != nil {
 						logger.GetLogger(ctx).Errorf("update order err: %v", err)
