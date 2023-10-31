@@ -16,6 +16,11 @@ func (h *Handler) getBalance() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		balance, err := h.services.Balance.GetBalance(r.Context())
+		if err != nil {
+			logger.GetLogger(r.Context()).Errorf("get balance err : %v", err)
+			payload.NewErrorResponse(w, "get balance err ", http.StatusInternalServerError)
+			return
+		}
 		body, err := json.Marshal(&balance)
 		if err != nil {
 			logger.GetLogger(r.Context()).Errorf("json encode err : %v", err)
