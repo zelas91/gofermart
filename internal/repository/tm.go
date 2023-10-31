@@ -9,6 +9,11 @@ import (
 	"github.com/zelas91/gofermart/internal/types"
 )
 
+type transactionManager interface {
+	do(ctx context.Context, fn func(ctx context.Context) error) error
+	getConn(ctx context.Context) conn
+}
+
 type tm struct {
 	db *sqlx.DB
 }

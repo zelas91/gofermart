@@ -41,7 +41,3 @@ type Balance interface {
 	Withdraw(ctx context.Context, userID int64, withdraw entities.Withdraw) error
 	WithdrawInfo(ctx context.Context, userID int64) ([]entities.WithdrawInfo, error)
 }
-type transactionManager interface {
-	do(ctx context.Context, fn func(ctx context.Context) error) error
-	getConn(ctx context.Context) conn
-}
