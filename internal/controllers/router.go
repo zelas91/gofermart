@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/go-chi/chi/v5"
+	middleware2 "github.com/go-chi/chi/v5/middleware"
 	"github.com/zelas91/gofermart/internal/middleware"
 	"github.com/zelas91/gofermart/internal/service"
 	"go.uber.org/zap"
@@ -20,7 +21,7 @@ func NewHandler(services *service.Service) *Handler {
 
 func (h *Handler) InitRoutes(log *zap.SugaredLogger) http.Handler {
 	router := chi.NewRouter()
-	router.Use(middleware.Logger(log), middleware.WithLogging)
+	router.Use(middleware2.Recoverer, middleware.Logger(log), middleware.WithLogging)
 	router.Route("/api/user", func(r chi.Router) {
 		r.Post("/register", h.signUp())
 		r.Post("/login", h.signIn())

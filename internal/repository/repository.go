@@ -40,4 +40,5 @@ type Balance interface {
 	GetBalance(ctx context.Context, userID int64) (entities.Balance, error)
 	Withdraw(ctx context.Context, userID int64, withdraw entities.Withdraw) error
 	WithdrawInfo(ctx context.Context, userID int64) ([]entities.WithdrawInfo, error)
+	LockUserForUpdateBalance(ctx context.Context, userID int64) error
 }

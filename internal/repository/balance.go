@@ -33,6 +33,9 @@ func (b *balancePostgres) GetBalance(ctx context.Context, userID int64) (entitie
 
 func (b *balancePostgres) Withdraw(ctx context.Context, userID int64, withdraw entities.Withdraw) error {
 	return b.tm.do(ctx, func(ctx context.Context) error {
+		if err := b.LockUserForUpdateBalance(ctx, userID); err != nil {
+			return err
+		}
 		usID, err := b.orders.FindUserIDByOrder(ctx, withdraw.Order)
 		if err != nil {
 			return err
@@ -65,4 +68,14 @@ func (b *balancePostgres) WithdrawInfo(ctx context.Context, userID int64) ([]ent
 	}
 	return withdraws, nil
 
+}
+func (b *balancePostgres) LockUserForUpdateBalance(ctx context.Context, userID int64) error {
+	q := `SELECT id FROM users WHERE id = $1 FOR UPDATE`
+
+	_, err := b.tm.getConn(ctx).ExecContext(ctx, q, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

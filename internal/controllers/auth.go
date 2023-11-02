@@ -8,7 +8,6 @@ import (
 	"github.com/zelas91/gofermart/internal/logger"
 	"github.com/zelas91/gofermart/internal/payload"
 	"github.com/zelas91/gofermart/internal/repository"
-	"io"
 	"net/http"
 )
 
@@ -28,9 +27,11 @@ func (h *Handler) signUp() http.HandlerFunc {
 			payload.NewErrorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		defer func(body io.ReadCloser) {
-			_ = body.Close()
-		}(r.Body)
+		defer func() {
+			if err := r.Body.Close(); err != nil {
+				logger.GetLogger(r.Context()).Errorf("sign up body close err :%v", err)
+			}
+		}()
 
 		validate := validator.New()
 		if err := validate.Struct(user); err != nil {

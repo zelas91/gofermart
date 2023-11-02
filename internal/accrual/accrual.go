@@ -71,8 +71,8 @@ func (c *Client) fetchOrder(ctx context.Context) {
 				for _, order := range orders {
 
 					oa, err := c.getOrderAccrual(ctx, order)
-					var errClient *errHTTPClient
-					if errors.As(err, &errClient) {
+
+					if errClient := new(errHTTPClient); errors.As(err, &errClient) {
 						if errClient.statusCode == http.StatusTooManyRequests {
 							retryErr = true
 							ticker.Reset(errClient.retryTime)
@@ -82,6 +82,10 @@ func (c *Client) fetchOrder(ctx context.Context) {
 						logger.GetLogger(ctx).Errorf("accrual get request err: %v", err)
 						continue
 
+					}
+					if err != nil {
+						logger.GetLogger(ctx).Errorf("get order accrual err : %v", err)
+						return
 					}
 					if err = c.service.UpdateOrder(ctx, oa); err != nil {
 						logger.GetLogger(ctx).Errorf("update order err: %v", err)
@@ -97,7 +101,6 @@ func (c *Client) getOrderAccrual(ctx context.Context, order entities.Order) (ent
 	URL := fmt.Sprintf("%s/api/orders/%s", c.baseURL, order.Number)
 	resp, err := c.client.Get(URL)
 	if err != nil {
-		logger.GetLogger(ctx).Errorf("http request err : %v", err)
 		return entities.OrderAccrual{}, err
 	}
 	if resp.StatusCode != http.StatusOK {
@@ -112,7 +115,6 @@ func (c *Client) getOrderAccrual(ctx context.Context, order entities.Order) (ent
 	var oa entities.OrderAccrual
 
 	if err = json.NewDecoder(resp.Body).Decode(&oa); err != nil {
-		logger.GetLogger(ctx).Errorf("json decode err : %v", err)
 		return oa, err
 	}
 
