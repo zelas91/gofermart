@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/zelas91/gofermart/internal/entities"
+	errService "github.com/zelas91/gofermart/internal/error"
 	"github.com/zelas91/gofermart/internal/logger"
 	"github.com/zelas91/gofermart/internal/service"
 	"net/http"
@@ -14,16 +15,6 @@ import (
 )
 
 const defaultRetryAfter = time.Second
-
-type errHTTPClient struct {
-	msg        string
-	statusCode int
-	retryTime  time.Duration
-}
-
-func (e *errHTTPClient) Error() string {
-	return e.msg
-}
 
 type Client struct {
 	client  *http.Client
@@ -72,10 +63,10 @@ func (c *Client) fetchOrder(ctx context.Context) {
 
 					oa, err := c.getOrderAccrual(ctx, order)
 
-					if errClient := new(errHTTPClient); errors.As(err, &errClient) {
-						if errClient.statusCode == http.StatusTooManyRequests {
+					if errClient := new(errService.ErrHTTPClient); errors.As(err, &errClient) {
+						if errClient.StatusCode == http.StatusTooManyRequests {
 							retryErr = true
-							ticker.Reset(errClient.retryTime)
+							ticker.Reset(errClient.RetryTime)
 							return
 						}
 
@@ -105,11 +96,11 @@ func (c *Client) getOrderAccrual(ctx context.Context, order entities.Order) (ent
 	}
 	if resp.StatusCode != http.StatusOK {
 		if resp.StatusCode == http.StatusTooManyRequests {
-			return entities.OrderAccrual{}, &errHTTPClient{msg: "status code not equals 200",
-				statusCode: resp.StatusCode, retryTime: c.getRetryAfterByResp(ctx, resp)}
+			return entities.OrderAccrual{}, &errService.ErrHTTPClient{Msg: "status code not equals 200",
+				StatusCode: resp.StatusCode, RetryTime: c.getRetryAfterByResp(ctx, resp)}
 		}
-		return entities.OrderAccrual{}, &errHTTPClient{msg: "status code not equals 200",
-			statusCode: resp.StatusCode, retryTime: defaultRetryAfter}
+		return entities.OrderAccrual{}, &errService.ErrHTTPClient{Msg: "status code not equals 200",
+			StatusCode: resp.StatusCode, RetryTime: defaultRetryAfter}
 	}
 
 	var oa entities.OrderAccrual

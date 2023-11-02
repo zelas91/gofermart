@@ -5,11 +5,7 @@ import (
 	"errors"
 	"github.com/lib/pq"
 	"github.com/zelas91/gofermart/internal/entities"
-)
-
-var (
-	pgError      *pq.Error
-	ErrDuplicate = errors.New("login is already taken")
+	errorService "github.com/zelas91/gofermart/internal/error"
 )
 
 type authPostgres struct {
@@ -23,9 +19,8 @@ func newAuthPostgres(tm transactionManager) *authPostgres {
 func (a *authPostgres) CreateUser(ctx context.Context, login, password string) error {
 	if _, err := a.tm.getConn(ctx).ExecContext(ctx,
 		"INSERT INTO USERS (login, password) values($1, $2)", login, password); err != nil {
-
-		if errors.As(err, &pgError) && pgError.Code == "23505" {
-			return ErrDuplicate
+		if errPg := new(pq.PGError); errors.As(err, errPg) {
+			return errorService.ErrDuplicate
 		}
 
 		return err

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/zelas91/gofermart/internal/entities"
+	errorService "github.com/zelas91/gofermart/internal/error"
 	"github.com/zelas91/gofermart/internal/logger"
 	"github.com/zelas91/gofermart/internal/payload"
-	"github.com/zelas91/gofermart/internal/repository"
 	"net/http"
 )
 
@@ -41,7 +41,7 @@ func (h *Handler) signUp() http.HandlerFunc {
 		}
 
 		if err := h.services.CreateUser(r.Context(), user); err != nil {
-			if errors.Is(err, repository.ErrDuplicate) {
+			if errors.Is(err, errorService.ErrDuplicate) {
 				logger.GetLogger(r.Context()).Errorf("sigUp user duplicate err :%v", err)
 				payload.NewErrorResponse(w, err.Error(), http.StatusConflict)
 				return
