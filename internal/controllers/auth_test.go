@@ -7,6 +7,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/zelas91/gofermart/internal/entities"
+	errorService "github.com/zelas91/gofermart/internal/error"
 	"github.com/zelas91/gofermart/internal/logger"
 	"github.com/zelas91/gofermart/internal/repository"
 	mock "github.com/zelas91/gofermart/internal/repository/mocks"
@@ -93,7 +94,7 @@ func TestSignUp(t *testing.T) {
 			content: "application/json",
 			mockBehaviorCreateUser: func(s *mock.MockAuthorization, login, password string) {
 				s.EXPECT().CreateUser(gomock.Any(),
-					gomock.Any(), gomock.Any()).Return(repository.ErrDuplicate)
+					gomock.Any(), gomock.Any()).Return(errorService.ErrDuplicate)
 			},
 			login:    "user",
 			password: "12345678",
