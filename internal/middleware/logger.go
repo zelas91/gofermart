@@ -41,6 +41,7 @@ func WithLogging(next http.Handler) http.Handler {
 		log := logger.GetLogger(r.Context())
 		logWriter := &loggingWriter{
 			ResponseWriter: w,
+			status:         200,
 		}
 
 		start := time.Now()

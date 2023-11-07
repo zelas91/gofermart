@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"github.com/zelas91/gofermart/internal/entities"
 	"github.com/zelas91/gofermart/internal/repository"
+	"github.com/zelas91/gofermart/internal/types"
 	"strconv"
 )
 
@@ -18,9 +20,15 @@ func (o *orderService) FindUserIDByOrder(ctx context.Context, number string) (in
 }
 
 func (o *orderService) CreateOrder(ctx context.Context, number string) error {
-	return o.repo.CreateOrder(ctx, number)
+	if err := o.repo.CreateOrder(ctx, number); err != nil {
+		return err
+	}
+	return nil
 }
 
+func (o *orderService) FindOrdersByUser(ctx context.Context) ([]entities.Order, error) {
+	return o.repo.FindOrdersByUserID(ctx, ctx.Value(types.UserIDKey).(int64))
+}
 func (o *orderService) ValidateNumber(number string) bool {
 	sum := 0
 	parity := len(number) % 2
@@ -35,4 +43,15 @@ func (o *orderService) ValidateNumber(number string) bool {
 		sum += digit
 	}
 	return sum%10 == 0
+}
+func (o *orderService) GetOrders(ctx context.Context) ([]entities.Order, error) {
+	return o.repo.GetOrders(ctx)
+}
+
+func (o *orderService) GetOrdersWithoutFinalStatuses(ctx context.Context) ([]entities.Order, error) {
+	return o.repo.GetOrdersWithoutFinalStatuses(ctx)
+}
+
+func (o *orderService) UpdateOrder(ctx context.Context, order entities.OrderAccrual) error {
+	return o.repo.UpdateOrder(ctx, order)
 }

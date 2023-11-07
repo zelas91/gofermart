@@ -9,12 +9,16 @@ import (
 type Repository struct {
 	Authorization
 	Orders
+	Balance
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
+	tm := newTm(db)
+	orders := newOrderPostgres(tm)
 	return &Repository{
-		Authorization: newAuthPostgres(db),
-		Orders:        newOrderPostgres(db),
+		Authorization: newAuthPostgres(tm),
+		Orders:        orders,
+		Balance:       newBalancePostgres(tm, orders),
 	}
 }
 
@@ -27,4 +31,14 @@ type Authorization interface {
 type Orders interface {
 	FindUserIDByOrder(ctx context.Context, number string) (int64, error)
 	CreateOrder(ctx context.Context, number string) error
+	FindOrdersByUserID(ctx context.Context, userID int64) ([]entities.Order, error)
+	GetOrders(ctx context.Context) ([]entities.Order, error)
+	GetOrdersWithoutFinalStatuses(ctx context.Context) ([]entities.Order, error)
+	UpdateOrder(ctx context.Context, order entities.OrderAccrual) error
+}
+type Balance interface {
+	GetBalance(ctx context.Context, userID int64) (entities.Balance, error)
+	Withdraw(ctx context.Context, userID int64, withdraw entities.Withdraw) error
+	WithdrawInfo(ctx context.Context, userID int64) ([]entities.WithdrawInfo, error)
+	LockUserForUpdateBalance(ctx context.Context, userID int64) error
 }

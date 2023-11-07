@@ -5,42 +5,54 @@ import (
 	"errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/zelas91/gofermart/internal/entities"
+	errorService "github.com/zelas91/gofermart/internal/error"
 	"github.com/zelas91/gofermart/internal/logger"
 	"github.com/zelas91/gofermart/internal/payload"
-	"github.com/zelas91/gofermart/internal/repository"
 	"net/http"
 )
 
 func (h *Handler) signUp() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log := logger.GetLogger(r.Context())
-		user := &entities.User{}
-		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-			log.Errorf("sigUp json decode err :%v", err)
-			payload.NewErrorResponse(w, err.Error(), http.StatusBadRequest)
+
+		if r.Header.Get(content) != "application/json" {
+			logger.GetLogger(r.Context()).Errorf("invalid content type")
+			payload.NewErrorResponse(w, "invalid content type", http.StatusUnsupportedMediaType)
 			return
 		}
 
+		user := &entities.User{}
+
+		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+			logger.GetLogger(r.Context()).Errorf("sigUp json decode err :%v", err)
+			payload.NewErrorResponse(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		defer func() {
+			if err := r.Body.Close(); err != nil {
+				logger.GetLogger(r.Context()).Errorf("sign up body close err :%v", err)
+			}
+		}()
+
 		validate := validator.New()
 		if err := validate.Struct(user); err != nil {
-			log.Errorf("sigUp json validate err :%v", err)
+			logger.GetLogger(r.Context()).Errorf("sigUp json validate err :%v", err)
 			payload.NewErrorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		if err := h.services.CreateUser(r.Context(), user); err != nil {
-			if errors.Is(err, repository.ErrDuplicate) {
-				log.Errorf("sigUp user duplicate err :%v", err)
+			if errors.Is(err, errorService.ErrDuplicate) {
+				logger.GetLogger(r.Context()).Errorf("sigUp user duplicate err :%v", err)
 				payload.NewErrorResponse(w, err.Error(), http.StatusConflict)
 				return
 			}
-			log.Errorf("sigUp create user err :%v", err)
+			logger.GetLogger(r.Context()).Errorf("sigUp create user err :%v", err)
 			payload.NewErrorResponse(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		token, err := h.services.CreateToken(r.Context(), user)
 		if err != nil {
-			log.Errorf("sigUp create token err :%v", err)
+			logger.GetLogger(r.Context()).Errorf("sigUp create token err :%v", err)
 			payload.NewErrorResponse(w, "invalid login or password", http.StatusUnauthorized)
 			return
 		}
@@ -57,23 +69,29 @@ func (h *Handler) signUp() http.HandlerFunc {
 
 func (h *Handler) signIn() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log := logger.GetLogger(r.Context())
+
+		if r.Header.Get(content) != "application/json" {
+			logger.GetLogger(r.Context()).Errorf("invalid content type")
+			payload.NewErrorResponse(w, "invalid content type", http.StatusUnsupportedMediaType)
+			return
+		}
+
 		user := &entities.User{}
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-			log.Errorf("signIn json decode err:%v", err)
+			logger.GetLogger(r.Context()).Errorf("signIn json decode err:%v", err)
 			payload.NewErrorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		validate := validator.New()
 		if err := validate.Struct(user); err != nil {
-			log.Errorf("signIn json validate err:%v", err)
+			logger.GetLogger(r.Context()).Errorf("signIn json validate err:%v", err)
 			payload.NewErrorResponse(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		token, err := h.services.CreateToken(r.Context(), user)
 		if err != nil {
-			log.Errorf("signIn create token err:%v", err)
+			logger.GetLogger(r.Context()).Errorf("signIn create token err:%v", err)
 			payload.NewErrorResponse(w, "invalid login or password", http.StatusUnauthorized)
 			return
 		}

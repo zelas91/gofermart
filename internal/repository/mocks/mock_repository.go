@@ -101,6 +101,21 @@ func (mr *MockOrdersMockRecorder) CreateOrder(ctx, number interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateOrder", reflect.TypeOf((*MockOrders)(nil).CreateOrder), ctx, number)
 }
 
+// FindOrdersByUserID mocks base method.
+func (m *MockOrders) FindOrdersByUserID(ctx context.Context, userID int64) ([]entities.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindOrdersByUserID", ctx, userID)
+	ret0, _ := ret[0].([]entities.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindOrdersByUserID indicates an expected call of FindOrdersByUserID.
+func (mr *MockOrdersMockRecorder) FindOrdersByUserID(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOrdersByUserID", reflect.TypeOf((*MockOrders)(nil).FindOrdersByUserID), ctx, userID)
+}
+
 // FindUserIDByOrder mocks base method.
 func (m *MockOrders) FindUserIDByOrder(ctx context.Context, number string) (int64, error) {
 	m.ctrl.T.Helper()
@@ -114,4 +129,115 @@ func (m *MockOrders) FindUserIDByOrder(ctx context.Context, number string) (int6
 func (mr *MockOrdersMockRecorder) FindUserIDByOrder(ctx, number interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUserIDByOrder", reflect.TypeOf((*MockOrders)(nil).FindUserIDByOrder), ctx, number)
+}
+
+// GetOrders mocks base method.
+func (m *MockOrders) GetOrders(ctx context.Context) ([]entities.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrders", ctx)
+	ret0, _ := ret[0].([]entities.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrders indicates an expected call of GetOrders.
+func (mr *MockOrdersMockRecorder) GetOrders(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrders", reflect.TypeOf((*MockOrders)(nil).GetOrders), ctx)
+}
+
+// GetOrdersWithoutFinalStatuses mocks base method.
+func (m *MockOrders) GetOrdersWithoutFinalStatuses(ctx context.Context) ([]entities.Order, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetOrdersWithoutFinalStatuses", ctx)
+	ret0, _ := ret[0].([]entities.Order)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetOrdersWithoutFinalStatuses indicates an expected call of GetOrdersWithoutFinalStatuses.
+func (mr *MockOrdersMockRecorder) GetOrdersWithoutFinalStatuses(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetOrdersWithoutFinalStatuses", reflect.TypeOf((*MockOrders)(nil).GetOrdersWithoutFinalStatuses), ctx)
+}
+
+// UpdateOrder mocks base method.
+func (m *MockOrders) UpdateOrder(ctx context.Context, order entities.OrderAccrual) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateOrder", ctx, order)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateOrder indicates an expected call of UpdateOrder.
+func (mr *MockOrdersMockRecorder) UpdateOrder(ctx, order interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateOrder", reflect.TypeOf((*MockOrders)(nil).UpdateOrder), ctx, order)
+}
+
+// MockBalance is a mock of Balance interface.
+type MockBalance struct {
+	ctrl     *gomock.Controller
+	recorder *MockBalanceMockRecorder
+}
+
+// MockBalanceMockRecorder is the mock recorder for MockBalance.
+type MockBalanceMockRecorder struct {
+	mock *MockBalance
+}
+
+// NewMockBalance creates a new mock instance.
+func NewMockBalance(ctrl *gomock.Controller) *MockBalance {
+	mock := &MockBalance{ctrl: ctrl}
+	mock.recorder = &MockBalanceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockBalance) EXPECT() *MockBalanceMockRecorder {
+	return m.recorder
+}
+
+// GetBalance mocks base method.
+func (m *MockBalance) GetBalance(ctx context.Context, userID int64) (entities.Balance, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBalance", ctx, userID)
+	ret0, _ := ret[0].(entities.Balance)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBalance indicates an expected call of GetBalance.
+func (mr *MockBalanceMockRecorder) GetBalance(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBalance", reflect.TypeOf((*MockBalance)(nil).GetBalance), ctx, userID)
+}
+
+// Withdraw mocks base method.
+func (m *MockBalance) Withdraw(ctx context.Context, userID int64, withdraw entities.Withdraw) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Withdraw", ctx, userID, withdraw)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Withdraw indicates an expected call of Withdraw.
+func (mr *MockBalanceMockRecorder) Withdraw(ctx, userID, withdraw interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Withdraw", reflect.TypeOf((*MockBalance)(nil).Withdraw), ctx, userID, withdraw)
+}
+
+// WithdrawInfo mocks base method.
+func (m *MockBalance) WithdrawInfo(ctx context.Context, userID int64) ([]entities.WithdrawInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WithdrawInfo", ctx, userID)
+	ret0, _ := ret[0].([]entities.WithdrawInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// WithdrawInfo indicates an expected call of WithdrawInfo.
+func (mr *MockBalanceMockRecorder) WithdrawInfo(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithdrawInfo", reflect.TypeOf((*MockBalance)(nil).WithdrawInfo), ctx, userID)
 }
